@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr-FR" class="no-js">
+    <head>
+        <meta charset="UTF-8">
+        <title>Crossroad quality evaluation</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-uWxY/CJNBR+1zjPWmfnSnVxwRheevXITnMqoEIeG1LJrdI0GlVs/9cVSyPYXdcSF" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/bootstrap-dark.min.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+            crossorigin=""/>
+                
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-kQtW33rZJAHjgefvhyyzcGF3C5TFyBQBA13V1RKPf4uH+bwyzQxZ6CmMZHmNBEfJ" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+        
+        <!-- Library Leaflet -->
+        <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
+        <script src="node_modules/leaflet/dist/leaflet.js"></script>
+
+        <!-- Extension Géoportail pour Leaflet -->
+        <script src="node_modules/geoportal-extensions-leaflet/dist/GpPluginLeaflet.js"></script>
+        <link rel="stylesheet" data-key="VOTRE-CLEF"  href="node_modules/geoportal-extensions-leaflet/dist/GpPluginLeaflet.css" />
+    
+    </head>
+    <body>
+        <div class="container-xxl" id="main-container">
+            <h1>Crossroad quality evaluation</h1>
+             <p class="lead">This evaluation toolkit has been developped within the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>.</p>
+            
+            <div class="row">
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title">Crossroad segmentation</h2>
+                                    
+                                    <ol>
+                                        <li><p>Compute crossroad segmentation using <a href="https://gitlab.limos.fr/jmafavre/crossroads-segmentation">cseg</a>. Example (compute all crossroads at distance less than 1000 meters from the obélisque (Clermont-Ferrand):</p>
+                                        <code>
+                                            git clone https://gitlab.limos.fr/jmafavre/crossroads-segmentation<br />
+                                            cd crossroads-segmentation/src<br />
+                                            ./get-crossroad-description.py --by-name obélisque -r 1000 --to-json-all crossroads-obelisque-1000.json
+                                        </code>
+                                        </li>
+                                        <li>Follow the link for <a href="evaluate-segmentation.html">segmentation evaluation</a>, load <code>crossroads-obelisque-1000.json</code> and answer all the questions. Download the updated json file with the evaluation answers.</li>
+                                        <li>Use the evaluation browser to have a user friendly rendering of this json file. <em>(available soon)</em></li>
+                                    </ol>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title">Crossroad description</h2>
+                                    <p><em>Available soon...</em></p>
+                                </div>
+                            </div>
+                        </div>
+            </div>
+
+        </div>
+    </body>
