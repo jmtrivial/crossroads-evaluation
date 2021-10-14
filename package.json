@@ -1,0 +1,11 @@
+{
+  "name": "crossroad evaluation",
+  "version": "0.0.1",
+  "lockfileVersion": 1,
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "bootstrap-dark": "^1.0.3",
+    "jquery": "^3.6.0",
+    "leaflet": "^1.7.1"
+  }
+}

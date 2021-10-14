@@ -40,7 +40,7 @@ Colors.list = function(nb) {
 };
 
 
-function evalute_crossroad(current_crossroad, divID, crossroadLinksID) {
+function render_crossroad(current_crossroad, divID, crossroadLinksID) {
     // sort using first branches, then crossroad core
     current_crossroad.sort((x1, x2) => x1["type"].localeCompare(x2["type"]));
     

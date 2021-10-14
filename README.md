@@ -2,11 +2,11 @@
 
 ## Installation
 
-In this directory, install leaflet:
+In this directory, install dependancies using ```npm```:
 
-* ```npm i leaflet```
+* ```npm i```
 
-Leaflet will be installed in ```node_modules/leaflet/dist/```
+Leaflet, JQuery, Bootstrap and Boostrap-dark will be installed in ```node_modules/```.
 
 Install on your computer an http server (such as apache), or move this directory in a web server, such that ```evaluate.html``` is reachable via ```http``` or ```https``` protocol.
 
