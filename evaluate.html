@@ -28,7 +28,6 @@
         <script>
         
 
-
             // shuffle crossroad indexes to browse them in a random order
             function shuffle(array) {
                 let currentIndex = array.length,  randomIndex;
@@ -296,140 +295,166 @@
                 $("#prev_crossroads").text(" and " + nb);
             }
         
-            $(document).ready(function () {
-                $("#next").click(function(evt) {
-                    set_current_crossroad_evaluation();
-                    window.current_id += 1;
-                    if (window.crossroads_index.length == window.current_id) {
-                        the_end();
-                    }
-                    else {
-                        set_question();
-                    }
-                });
-                
+        
 
-                $("#prev").click(function(evt) {
-                    set_current_crossroad_evaluation();
-                    window.current_id -= 1;
-                    set_question();
-                });
+
+            $(document).ready(function () {
+            
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('tool')) {
+                    tool = urlParams.get('tool');
+                }
+                else {
+                    console.log("cannot identify a tool, select the default one");
+                    tool = "evaluate-segmentation";
+                }
+
+                const script = document.createElement('script');
+                script.src = 'js/' + tool + '.js';
+                script.id = 'evaluation-parameters';
+                document.body.appendChild(script);
                 
-                window.addEventListener('popstate', function(event) {
-                    if (event.state == null) {
-                        restart();
-                    }
-                    else {
-                        question = event.state.question;
-                        if (typeof question !== "undefined") {
-                            if (question == "all") {
-                                ask_settings(false);
-                            }
-                            else if (question == "shuffle") {
-                                ask_shuffle_or_not(false);
-                            }
-                            else {
-                                window.current_id = question;
-                                set_question(false);
-                            }
+                script.onerror = function() {
+                    $("#main-container>div").css("display", "none");
+                    $("#error-script").css("display", "block");
+                
+                }
+                script.onload = () => { 
+
+                    $("#next").click(function(evt) {
+                        set_current_crossroad_evaluation();
+                        window.current_id += 1;
+                        if (window.crossroads_index.length == window.current_id) {
+                            the_end();
                         }
                         else {
+                            set_question();
+                        }
+                    });
+                    
+
+                    $("#prev").click(function(evt) {
+                        set_current_crossroad_evaluation();
+                        window.current_id -= 1;
+                        set_question();
+                    });
+                    
+                    window.addEventListener('popstate', function(event) {
+                        if (event.state == null) {
                             restart();
                         }
-                    }
-                
-                }, false);
-                
-                window.addEventListener('pushstate', function(event) {
-                    if (event.state == null) {
-                        console.log("status ?");
-                    }
-                    else {
-                        question = event.state.question;
-                        if (typeof question !== "undefined") {
-                            if (question == "all") {
-                                ask_settings(false);
-                            }
-                            else if (question == "shuffle") {
-                                ask_shuffle_or_not(false);
+                        else {
+                            question = event.state.question;
+                            if (typeof question !== "undefined") {
+                                if (question == "all") {
+                                    ask_settings(false);
+                                }
+                                else if (question == "shuffle") {
+                                    ask_shuffle_or_not(false);
+                                }
+                                else {
+                                    window.current_id = question;
+                                    set_question(false);
+                                }
                             }
                             else {
-                                window.current_id = question;
-                                set_question(false);
+                                restart();
                             }
                         }
-                        else {
+                    
+                    }, false);
+                    
+                    window.addEventListener('pushstate', function(event) {
+                        if (event.state == null) {
                             console.log("status ?");
                         }
-                    }
-                }, false);
-                
-                
-                $("#download").click(download);
-                $("#download_end").click(download);
-                
-                $("#regular").click(function(evt) {
-                    start_questions();
-                });
-
-                $("#shuffle").click(function(evt) {
-                    shuffle(window.crossroads_index);
-                    start_questions();
-                });
-
-                $("#evaluate-all").click(function(evt) {
-                    ask_shuffle_or_not();
-                });
-                $("#evaluate-blank").click(function(evt) {
-                    remove_evaluted_crossroads();
-                    ask_shuffle_or_not();
-                });
-                
-                
-                $("#inputFile").on("change", function handleFileSelect(evt) {
-                    if (evt == null || evt.target == null || evt.target.files == null || evt.target.files.length == 0) {
-                        console.log("no input file");
-                        return;
-                    }
-
-                    var file = evt.target.files[0];
-
-                    if (file.type != "application/json") {
-                        console.log("bad format");
-                        return;
-                    }
+                        else {
+                            question = event.state.question;
+                            if (typeof question !== "undefined") {
+                                if (question == "all") {
+                                    ask_settings(false);
+                                }
+                                else if (question == "shuffle") {
+                                    ask_shuffle_or_not(false);
+                                }
+                                else {
+                                    window.current_id = question;
+                                    set_question(false);
+                                }
+                            }
+                            else {
+                                console.log("status ?");
+                            }
+                        }
+                    }, false);
                     
-                    const fr = new FileReader();
-
-                    fr.addEventListener("load", e => {
-                        $("#main-container>div").css("display", "none");
-                        $("#chargement").css("display", "block");
-                        
-                        // load data
-                        window.crossroads = JSON.parse(fr.result);
-                        
-                        // set numbers
-                        $("#nb_crossroads").text(window.crossroads.length);
-                        $("#settings_nb_crossroads").text(window.crossroads.length);
-                        $("#nb_processed").text(0);
-
-                        
-                        build_index();
-                        
-                        ask_settings();
+                    
+                    $("#download").click(download);
+                    $("#download_end").click(download);
+                    
+                    $("#regular").click(function(evt) {
+                        start_questions();
                     });
 
-                    fr.readAsText(file);
-                    window.input_filename = evt.target.files[0].name;
-                });
-                
-                build_question_interface();
+                    $("#shuffle").click(function(evt) {
+                        shuffle(window.crossroads_index);
+                        start_questions();
+                    });
 
+                    $("#evaluate-all").click(function(evt) {
+                        ask_shuffle_or_not();
+                    });
+                    $("#evaluate-blank").click(function(evt) {
+                        remove_evaluted_crossroads();
+                        ask_shuffle_or_not();
+                    });
+                    
+                    
+                    $("#inputFile").on("change", function handleFileSelect(evt) {
+                        if (evt == null || evt.target == null || evt.target.files == null || evt.target.files.length == 0) {
+                            console.log("no input file");
+                            return;
+                        }
+
+                        var file = evt.target.files[0];
+
+                        if (file.type != "application/json") {
+                            console.log("bad format");
+                            return;
+                        }
+                        
+                        const fr = new FileReader();
+
+                        fr.addEventListener("load", e => {
+                            $("#main-container>div").css("display", "none");
+                            $("#chargement").css("display", "block");
+                            
+                            // load data
+                            window.crossroads = JSON.parse(fr.result);
+                            
+                            // set numbers
+                            $("#nb_crossroads").text(window.crossroads.length);
+                            $("#settings_nb_crossroads").text(window.crossroads.length);
+                            $("#nb_processed").text(0);
+
+                            
+                            build_index();
+                            
+                            ask_settings();
+                        });
+
+                        fr.readAsText(file);
+                        window.input_filename = evt.target.files[0].name;
+                    });
+                    
+                    build_question_interface();
+                
+                    };
             });
-            
+
         </script>
         <style>
-            #question, #chargement, #settings, #settings2, #the_end { display: none; }
+            #question, #chargement, #settings, #settings2, #the_end, #error-script { display: none; }
             
             #crossroad-rendering { height: 100%; }
         </style>
@@ -451,7 +476,7 @@
                  </div>
             </div>
             <div id="chargement">
-                 <div class="position-absolute top-50 start-50 translate-middle fs-1">Chargement des données...</div>
+                 <div class="position-absolute top-50 start-50 translate-middle fs-1">Loading data...</div>
             </div>
             <div id="settings">
                 <div class="position-absolute top-50 start-50 translate-middle fs-1 col-6">
@@ -517,6 +542,9 @@
                         <p>Download <code>json</code> file</p>
                         <button id="download_end" class="btn btn-primary" type="button" style="width: 100%">Get evaluations</button>
                  </div>
+            </div>
+            <div id="error-script">
+                 <div class="position-absolute top-50 start-50 translate-middle fs-1">Error while loading tool</div>
             </div>
         </div>
     </body>
