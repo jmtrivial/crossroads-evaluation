@@ -28,11 +28,11 @@
                                     
                                     <ol>
                                         <li><p>Compute crossroad segmentation using <a href="https://gitlab.limos.fr/jmafavre/crossroads-segmentation">cseg</a>. Example (compute all crossroads at distance less than 1000 meters from the obélisque (Clermont-Ferrand):</p>
-                                        <code>
-                                            git clone https://gitlab.limos.fr/jmafavre/crossroads-segmentation<br />
-                                            cd crossroads-segmentation/src<br />
-                                            ./get-crossroad-description.py --by-name obélisque -r 1000 --to-json-all crossroads-obelisque-1000.json
-                                        </code>
+                                        <pre class="pre-scrollable">
+git clone https://gitlab.limos.fr/jmafavre/crossroads-segmentation
+cd crossroads-segmentation/src
+./get-crossroad-description.py --by-name obélisque -r 1000 --connection-intensity 4 --to-json-all crossroads-obelisque-1000.json
+                                        </pre>
                                         </li>
                                         <li>Follow the link for <a href="evaluate.html?tool=evaluate-segmentation">segmentation evaluation</a>, load <code>crossroads-obelisque-1000.json</code> and answer all the questions. Download the updated json file with the evaluation answers.</li>
                                         <li>Use the evaluation browser to have a user friendly rendering of this json file. <em>(available soon)</em></li>
