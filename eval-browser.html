@@ -70,6 +70,7 @@
                     
                     cr_line["evaluated"] = eval != 0;
                     cr_line["incorrect"] = eval != 0 && is_evaluation_incorrect(eval);
+                    cr_line["crossroad"] = window.crossroads[idc];
                     
                     if (window.mode == "all" || 
                         (cr_line["evaluated"] && window.mode == "evaluated") || 
@@ -93,14 +94,21 @@
                 return result;
             }
 
-            function build_array_from_crossroads() {
+            function update_crossroads_display() {
                 data = build_data_from_crossroads();
                 table = $('#table')
                 table.bootstrapTable('destroy').bootstrapTable({data: data});
+                Settings.render_crossroads(data, "crossroads-rendering");
+                if (window.mode == "all")
+                    $("#crossroads_title").text("All crossroads");
+                else if (window.mode == "evaluated")
+                    $("#crossroads_title").text("Evaluated crossroads");
+                else if (window.mode == "incorrect")
+                    $("#crossroads_title").text("Incorrect crossroads");
             }
         
             function display_browser_interface() {
-                build_array_from_crossroads();
+                update_crossroads_display();
                 $("#main-container>div").css("display", "none");
                 $("#browser").css("display", "block");
             }
@@ -134,6 +142,7 @@
             function set_intro() {
                 $("#intro").html(Settings.intro_evaluation_browser_page);
             }
+
 
             $(document).ready(function () {
             
@@ -199,17 +208,17 @@
 
                     $("#show-all").click(function(evt) {
                         window.mode = "all";
-                        build_array_from_crossroads();
+                        update_crossroads_display();
                     });
 
                     $("#show-evaluated").click(function(evt) {
                         window.mode = "evaluated";
-                        build_array_from_crossroads();
+                        update_crossroads_display();
                     });
 
                     $("#show-incorrect").click(function(evt) {
                         window.mode = "incorrect";
-                        build_array_from_crossroads();
+                        update_crossroads_display();
                     });
                 }
             });
@@ -218,7 +227,7 @@
         <style>
             #question, #chargement, #browser, #error-script { display: none; }
             
-            #crossroad-rendering { height: 100%; }
+            #crossroads-rendering { height: 400px; width: 100%; }
         </style>
 
     </head>
@@ -254,8 +263,8 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title"><span id="crossroad_title"></span></h2>
-                        <div id="crossroad-rendering"></div>
+                        <h2 class="card-title" id="crossroads_title"></h2>
+                        <div id="crossroads-rendering"></div>
                     </div>
                 </div>
                 <div>

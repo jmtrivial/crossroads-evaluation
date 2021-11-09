@@ -70,10 +70,7 @@ Settings.compute_fields = function(crossroad) {
     return result;
 }
 
-Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID) {
-    // sort using first branches, then crossroad core
-    current_crossroad.sort((x1, x2) => x1["type"].localeCompare(x2["type"]));
-    
+Settings.init_map = function(divID) {
     if (typeof window.map === 'undefined') {
         window.map = L.map(divID);
 
@@ -107,9 +104,15 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
         }
         
     }
+}
+
+Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID) {
+    // sort using first branches, then crossroad core
+    current_crossroad.sort((x1, x2) => x1["type"].localeCompare(x2["type"]));
+    
+    Settings.init_map(divID);
     
     window.crossroad_layers = [];
-    
     
     // build a random list of colors
     colors = Settings.Colors.list(current_crossroad.length);
@@ -145,7 +148,7 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
                                 
             // create crossroad layer
             layer = L.polyline(latlng, options);
-            window.crossroad_layers.push(layer);
+
             if (element["type"] == "crossroad") {
                 center = layer.getBounds().getCenter();
             }
@@ -155,6 +158,7 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
     // create a layergroup
     window.layergroup = L.featureGroup(window.crossroad_layers).addTo(window.map);
     
+    console.log(window.crossroad_layers);
     // set the zoom adjusted on this layergroup
     window.map.fitBounds(window.layergroup.getBounds());
     
@@ -173,4 +177,55 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
     else {
         $("#" + crossroadLinksID).html("");
     }
+}
+
+Settings.render_crossroads = function(data, divID) {
+    Settings.init_map(divID);
+
+    window.crossroads_layers = [];
+
+    for(eid in data) {
+        crossroad = data[eid]["crossroad"];
+        if (data[eid]["incorrect"])
+            color = "#FF0000";
+        else if (data[eid]["evaluated"])
+            color = "#00FF00";
+        else
+            color = "#CCCCCC";
+
+        for(var eid in crossroad) {
+            element = crossroad[eid];
+
+            if (element["type"] == "crossroad") {
+                // build latlng
+                latlng = [];
+                if (element["edges_by_nodes"].length == 0) {
+                    if (element["nodes"].length != 0 && element["nodes"]["border"].length != 0) {
+                        coord = element["coordinates"][element["nodes"]["border"][0]];
+                        latlng.unshift([[coord["y"], coord["x"]], [coord["y"], coord["x"]]]);
+                    }
+                }
+                else {
+                    for (var eidi in element["edges_by_nodes"]) {
+                        edge = element["edges_by_nodes"][eidi];
+                        latlng.push([[element["coordinates"][edge[0]]["y"], element["coordinates"][edge[0]]["x"]],
+                                    [element["coordinates"][edge[1]]["y"], element["coordinates"][edge[1]]["x"]]]);
+                    }
+                }
+                // set color
+                options = {color: color};
+                // create crossroad layer
+                layer = L.polyline(latlng, options);
+                window.crossroads_layers.push(layer);
+                break;
+            }
+        }
+    }
+
+    // create a layergroup
+    window.layergroup = L.featureGroup(window.crossroads_layers).addTo(window.map);
+
+    // set the zoom adjusted on this layergroup
+    window.map.fitBounds(window.layergroup.getBounds());
+    
 }
