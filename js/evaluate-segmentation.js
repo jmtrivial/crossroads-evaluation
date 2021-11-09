@@ -1,16 +1,26 @@
-settings_questions = '{ \
-    "scale": {"question": "Crossroad scale", "type": "multiple_choice", "values": ["correct", "too large", "too small"], "default": "correct" }, \
-    "nb_branches": { "question": "Number of branches", "type": "multiple_choice", "values": ["correct", "too few", "too much"], "default": "correct" }, \
-    "branches": { "question": "Branches configuration", "type": "multiple_choice", "values": ["correct", "two or more branches are merged", "one or more branch is split", "merged and split branches"], "default": "correct" }, \
-    "edges": {"question": "Edge position", "type": "multiple_choice", "values": ["correct", "too far", "too close"], "default": "correct" }, \
-    "completness": {"question": "Completness", "type": "multiple_choice", "values": ["correct", "missing parts", "excess parts"], "default": "correct" }, \
-    "comments": {"question": "Comments", "type": "text", "default": "" } \
-}';
 
+Settings = {};
+
+Settings.question_list = '{ \
+        "scale": {"question": "Crossroad scale", "type": "multiple_choice", "values": ["correct", "too large", "too small"], "default": "correct" }, \
+        "nb_branches": { "question": "Number of branches", "type": "multiple_choice", "values": ["correct", "too few", "too much"], "default": "correct" }, \
+        "branches": { "question": "Branches configuration", "type": "multiple_choice", "values": ["correct", "two or more branches are merged", "one or more branch is split", "merged and split branches"], "default": "correct" }, \
+        "edges": {"question": "Edge position", "type": "multiple_choice", "values": ["correct", "too far", "too close"], "default": "correct" }, \
+        "completness": {"question": "Completness", "type": "multiple_choice", "values": ["correct", "missing parts", "excess parts"], "default": "correct" }, \
+        "comments": {"question": "Comments", "type": "text", "default": "" } \
+    }';
+
+Settings.computed_fields = '{ "complex_node_number": "#complex nodes", "length": "Length" }';
+
+Settings.title_evaluation_page = "Crossroad segmentation quality evaluation";
+Settings.intro_evaluation_page = 'By answering the following questions, you will evaluate the quality of a junction detection and segmentation algorithm in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
+
+    title_evaluation_browser_page = "Crossroad segmentation quality evaluation browser";
+    intro_evaluation_browser_page = 'Browse the result of a quality evaluation process on a series of junction detection and segmentations algorithm.  in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
 
 // from jquery.color.js plugin
-Colors = {};
-Colors.names = {
+Settings.Colors = {};
+Settings.Colors.names = {
     blue: "#0000ff",
     lime: "#00ff00",
     yellow: "#ffff00",
@@ -27,11 +37,12 @@ Colors.names = {
     violet: "#800080",
     silver: "#c0c0c0"
 };
+
 // from https://stackoverflow.com/a/10014969/5319942
-Colors.list = function(nb) {
+Settings.Colors.list = function(nb) {
     var result = [];
-    for (var key in Colors.names) {
-        result.push(Colors.names[key]);
+    for (var key in Settings.Colors.names) {
+        result.push(Settings.Colors.names[key]);
         if (result.length == nb)
             break;
     }
@@ -39,8 +50,27 @@ Colors.list = function(nb) {
 
 };
 
+Settings.compute_complex_node_number = function(crossroad) {
+    // TODO
+    return 1;
+}
 
-function render_crossroad(current_crossroad, divID, crossroadLinksID) {
+Settings.compute_crossroad_length = function(crossroad) {
+    // TODO
+    return 0.0;
+}
+
+
+Settings.compute_fields = function(crossroad) {
+    result = {};
+
+    result["complex_node_number"] = Settings.compute_complex_node_number(crossroad);
+    result["length"] = Settings.compute_crossroad_length(crossroad);
+    
+    return result;
+}
+
+Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID) {
     // sort using first branches, then crossroad core
     current_crossroad.sort((x1, x2) => x1["type"].localeCompare(x2["type"]));
     
@@ -82,7 +112,7 @@ function render_crossroad(current_crossroad, divID, crossroadLinksID) {
     
     
     // build a random list of colors
-    colors = Colors.list(current_crossroad.length);
+    colors = Settings.Colors.list(current_crossroad.length);
     
     // for each element of the crossroad create a layer
     for(var eid in current_crossroad) {

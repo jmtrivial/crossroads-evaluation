@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr-FR" class="no-js">
+    <head>
+        <meta charset="UTF-8">
+        <title>Browser tool</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <!-- bootstrap -->
+        <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js" ></script>
+        <!-- bootstrap dark -->
+        <link rel="stylesheet" href="node_modules/bootstrap-dark/src/bootstrap-dark.css" />
+
+        <!-- jquery -->
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+                
+        <!-- Library Leaflet -->
+        <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
+        <script src="node_modules/leaflet/dist/leaflet.js"></script>
+                
+        <script src="js/evaluate-segmentation.js"></script>
+        
+        <!-- bootstrap table -->
+        <link href="node_modules/bootstrap-table/dist/bootstrap-table.min.css" rel="stylesheet">
+        <script src="node_modules/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
+        <script>
+   
+            function is_evaluation_incorrect(ec) {
+                for(var qid in window.q_json) {
+                    if (ec[qid] != window.q_json[qid]["default"])
+                        return true;
+                }
+                return false;
+            }
+
+            function update_buttons() {
+                var nb_cr = window.crossroads.length;
+                var nb_cr_eval = 0;
+                var nb_cr_incorrect = 0;
+                for(var idc in window.crossroads) {
+                    ec = get_evaluation_crossroad(window.crossroads[idc]);
+                    if (ec != 0) {
+                        nb_cr_eval += 1;
+                        if (is_evaluation_incorrect(ec))
+                            nb_cr_incorrect += 1;
+                    }
+                }
+                $("#show-all span").html("(" + nb_cr + ")");
+                $("#show-evaluated span").html("(" + nb_cr_eval + ")");
+                $("#show-incorrect span").html("(" + nb_cr_incorrect + ")");
+            }
+               
+            function get_evaluation_crossroad(crossroad) {
+                for (var idc in crossroad) {
+                    if (crossroad[idc]["type"] == "evaluation")
+                        return crossroad[idc];
+                }
+                return 0;
+            }
+            function build_data_from_crossroads() {
+                var result = [];
+
+                i = 0;
+
+                for(var idc in window.crossroads) {
+                    cr_line = {};
+                    eval = get_evaluation_crossroad(window.crossroads[idc]);
+                    fields = Settings.compute_fields(window.crossroads[idc]);
+                    
+                    cr_line["evaluated"] = eval != 0;
+                    cr_line["incorrect"] = eval != 0 && is_evaluation_incorrect(eval);
+                    
+                    if (window.mode == "all" || 
+                        (cr_line["evaluated"] && window.mode == "evaluated") || 
+                        (cr_line["incorrect"] && window.mode == "incorrect")) {
+                        for(var qid in window.q_json) {
+                            if (eval == 0 || eval[qid] == window.q_json[qid]["default"])
+                                cr_line[qid] = "-";
+                            else
+                                cr_line[qid] = eval[qid];
+                        }
+                        cr_line["id"] = "" + i;
+
+                        for(var x in window.cf_json) {
+                            cr_line[x] = fields[x];
+                        }
+                        result.push(cr_line);
+                    }
+                    i += 1;
+                }
+
+                return result;
+            }
+
+            function build_array_from_crossroads() {
+                data = build_data_from_crossroads();
+                table = $('#table')
+                table.bootstrapTable('destroy').bootstrapTable({data: data});
+            }
+        
+            function display_browser_interface() {
+                build_array_from_crossroads();
+                $("#main-container>div").css("display", "none");
+                $("#browser").css("display", "block");
+            }
+
+            function build_browser_interface() {
+                // Create columns
+                html = '<th scope="row" data-field="id">ID</th>';
+                html += '<th data-field="state" data-checkbox="true"></th>';
+                window.q_json = JSON.parse(Settings.question_list);
+
+                // Columns from questions
+                for(var qid in window.q_json) {
+                    html += '<th scope="col" data-sortable="true" data-field="' + qid + '">' + window.q_json[qid]["question"] + '</th>';
+                }
+
+                window.cf_json = JSON.parse(Settings.computed_fields);
+
+                // Computed columns
+                for(var x in window.cf_json) {
+                    html += '<th scope="col" data-sortable="true" data-field="' + x + '">' + window.cf_json[x] + '</th>';
+                }
+
+                $("#table_header").html(html);
+            }
+        
+            function set_title() {
+                $("h1").text(title_evaluation_browser_page);
+                document.title = title_evaluation_browser_page;
+            }
+
+            function set_intro() {
+                $("#intro").html(intro_evaluation_browser_page);
+            }
+
+            $(document).ready(function () {
+            
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('tool')) {
+                    tool = urlParams.get('tool');
+                }
+                else {
+                    console.log("cannot identify a tool, select the default one");
+                    tool = "evaluate-segmentation";
+                }
+
+                const script = document.createElement('script');
+                script.src = 'js/' + tool + '.js';
+                script.id = 'evaluation-parameters';
+                document.body.appendChild(script);
+                
+                script.onerror = function() {
+                    $("#main-container>div").css("display", "none");
+                    $("#error-script").css("display", "block");
+                
+                }
+                script.onload = () => { 
+
+                    set_title();
+                    set_intro();
+
+                    build_browser_interface();
+
+                    
+                    $("#inputFile").on("change", function handleFileSelect(evt) {
+                        if (evt == null || evt.target == null || evt.target.files == null || evt.target.files.length == 0) {
+                            console.log("no input file");
+                            return;
+                        }
+
+                        var file = evt.target.files[0];
+
+                        if (file.type != "application/json") {
+                            console.log("bad format");
+                            return;
+                        }
+                        
+                        const fr = new FileReader();
+
+                        fr.addEventListener("load", e => {
+                            $("#main-container>div").css("display", "none");
+                            $("#chargement").css("display", "block");
+                            
+                            // load data
+                            window.crossroads = JSON.parse(fr.result);
+
+                            window.mode = "all";
+                            display_browser_interface();
+
+                            update_buttons();
+                        });
+
+                        fr.readAsText(file);
+                        window.input_filename = evt.target.files[0].name;
+                    });
+
+
+                    $("#show-all").click(function(evt) {
+                        window.mode = "all";
+                        build_array_from_crossroads();
+                    });
+
+                    $("#show-evaluated").click(function(evt) {
+                        window.mode = "evaluated";
+                        build_array_from_crossroads();
+                    });
+
+                    $("#show-incorrect").click(function(evt) {
+                        window.mode = "incorrect";
+                        build_array_from_crossroads();
+                    });
+                }
+            });
+
+        </script>
+        <style>
+            #question, #chargement, #browser, #error-script { display: none; }
+            
+            #crossroad-rendering { height: 100%; }
+        </style>
+
+    </head>
+	<body>
+        <div class="container-xxl" id="main-container">
+            
+            <h1>Evaluation tool</h1>
+             <p class="lead" id="intro"></p>
+            </p>
+            <div id="start">
+                 <div class="position-absolute top-50 start-50 translate-middle fs-1">
+                        <p>Select a <code>json</code> file</p>
+                        <div class="btn btn-primary btn-block" style="width: 100%">
+                                        <label style="padding: 0" tkey="chooseFile">Load crossroads</label>
+                                            <input type="file" id="inputFile" name="files[]" accept="application/json" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; opacity: 0">
+                        </div>
+                 </div>
+            </div>
+            <div id="chargement">
+                 <div class="position-absolute top-50 start-50 translate-middle fs-1">Loading data...</div>
+            </div>
+            <div id="browser">
+                <div class="row">
+                    <div class="col">
+                        <button id="show-all" class="btn btn-primary btn-block form-control" type="button">All crossroads <span></span></button>
+                    </div>
+                    <div class="col">
+                        <button id="show-evaluated" class="btn btn-primary btn-block form-control" type="button">Evaluated crossroads <span></span></button>
+                    </div>
+                    <div class="col">
+                        <button id="show-incorrect" class="btn btn-primary btn-block form-control" type="button">Only incorrect crossroads <span></span></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title"><span id="crossroad_title"></span></h2>
+                        <div id="crossroad-rendering"></div>
+                    </div>
+                </div>
+                <div>
+                    <table class="table-dark"
+                        id="table"
+                        data-filter="true"
+                        data-height="460"
+                        data-single-select="true"
+                        data-click-to-select="true"
+                        data-pagination="true">
+                        <thead>
+                            <tr id="table_header">
+                             </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div id="error-script">
+                 <div class="position-absolute top-50 start-50 translate-middle fs-1">Error while loading tool</div>
+            </div>
+        </div>
+    </body>
+</html>
