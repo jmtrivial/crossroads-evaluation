@@ -15,8 +15,8 @@ Settings.computed_fields = '{ "complex_node_number": "#complex nodes", "length":
 Settings.title_evaluation_page = "Crossroad segmentation quality evaluation";
 Settings.intro_evaluation_page = 'By answering the following questions, you will evaluate the quality of a junction detection and segmentation algorithm in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
 
-    title_evaluation_browser_page = "Crossroad segmentation quality evaluation browser";
-    intro_evaluation_browser_page = 'Browse the result of a quality evaluation process on a series of junction detection and segmentations algorithm.  in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
+Settings.title_evaluation_browser_page = "Crossroad segmentation quality evaluation browser";
+Settings.intro_evaluation_browser_page = 'Browse the result of a quality evaluation process on a series of junction detection and segmentations algorithm.  in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
 
 // from jquery.color.js plugin
 Settings.Colors = {};
