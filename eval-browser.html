@@ -49,6 +49,7 @@
                 $("#show-all span").html("(" + nb_cr + ")");
                 $("#show-evaluated span").html("(" + nb_cr_eval + ")");
                 $("#show-incorrect span").html("(" + nb_cr_incorrect + ")");
+                $("#show-correct span").html("(" + (nb_cr_eval - nb_cr_incorrect) + ")");
             }
                
             function get_evaluation_crossroad(crossroad) {
@@ -74,7 +75,8 @@
                     
                     if (window.mode == "all" || 
                         (cr_line["evaluated"] && window.mode == "evaluated") || 
-                        (cr_line["incorrect"] && window.mode == "incorrect")) {
+                        (cr_line["incorrect"] && window.mode == "incorrect") ||
+                        (cr_line["evaluated"] && !cr_line["incorrect"] && window.mode == "correct")) {
                         for(var qid in window.q_json) {
                             if (eval == 0 || eval[qid] == window.q_json[qid]["default"])
                                 cr_line[qid] = "-";
@@ -105,6 +107,8 @@
                     $("#crossroads_title").text("Evaluated crossroads");
                 else if (window.mode == "incorrect")
                     $("#crossroads_title").text("Incorrect crossroads");
+                else if (window.mode == "correct")
+                    $("#crossroads_title").text("Correct crossroads");
             }
         
             function display_browser_interface() {
@@ -116,7 +120,7 @@
             function build_browser_interface() {
                 // Create columns
                 html = '<th scope="row" data-field="id">ID</th>';
-                html += '<th data-field="state" data-checkbox="true"></th>';
+                //html += '<th data-field="state" data-checkbox="true"></th>';
                 window.q_json = JSON.parse(Settings.question_list);
 
                 // Columns from questions
@@ -220,14 +224,17 @@
                         window.mode = "incorrect";
                         update_crossroads_display();
                     });
+                    $("#show-correct").click(function(evt) {
+                        window.mode = "correct";
+                        update_crossroads_display();
+                    });
                 }
             });
 
         </script>
         <style>
             #question, #chargement, #browser, #error-script { display: none; }
-            
-            #crossroads-rendering { height: 400px; width: 100%; }
+            #crossroads-rendering { height: 400px; width: 100%; background: black;}
         </style>
 
     </head>
@@ -236,7 +243,7 @@
             
             <h1>Evaluation tool</h1>
              <p class="lead" id="intro"></p>
-            </p>
+            
             <div id="start">
                  <div class="position-absolute top-50 start-50 translate-middle fs-1">
                         <p>Select a <code>json</code> file</p>
@@ -250,12 +257,16 @@
                  <div class="position-absolute top-50 start-50 translate-middle fs-1">Loading data...</div>
             </div>
             <div id="browser">
+                
                 <div class="row">
                     <div class="col">
                         <button id="show-all" class="btn btn-primary btn-block form-control" type="button">All crossroads <span></span></button>
                     </div>
                     <div class="col">
                         <button id="show-evaluated" class="btn btn-primary btn-block form-control" type="button">Evaluated crossroads <span></span></button>
+                    </div>
+                    <div class="col">
+                        <button id="show-correct" class="btn btn-primary btn-block form-control" type="button">Only correct crossroads <span></span></button>
                     </div>
                     <div class="col">
                         <button id="show-incorrect" class="btn btn-primary btn-block form-control" type="button">Only incorrect crossroads <span></span></button>

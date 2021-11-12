@@ -70,11 +70,14 @@ Settings.compute_fields = function(crossroad) {
     return result;
 }
 
-Settings.init_map = function(divID) {
+Settings.init_map = function(divID, dark = false) {
     if (typeof window.map === 'undefined') {
         window.map = L.map(divID);
+        var opacity = 1.0;
+        if (dark)
+            opacity = 0.65;
 
-        L.tileLayer(
+        window.ign_layer = L.tileLayer(
             "https://wxs.ign.fr/jhyvi0fgmnuxvfv0zjzorvdn/geoportail/wmts?" +
             "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
             "&STYLE=normal" +
@@ -89,9 +92,11 @@ Settings.init_map = function(divID) {
                 maxNativeZoom: 19,
                 maxZoom : 21,
                 attribution : "IGN-F/Geoportail",
-                tileSize : 256 
+                tileSize : 256,
+                opacity: opacity
             }
-        ).addTo(window.map);
+        );
+        window.ign_layer.addTo(window.map);
         
         var scale = L.control.scale();
         scale.addTo(window.map);
@@ -117,6 +122,7 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
     // build a random list of colors
     colors = Settings.Colors.list(current_crossroad.length);
     
+
     // for each element of the crossroad create a layer
     for(var eid in current_crossroad) {
         element = current_crossroad[eid];
@@ -149,6 +155,9 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
             // create crossroad layer
             layer = L.polyline(latlng, options);
 
+            // add layers
+            window.crossroad_layers.push(layer);
+
             if (element["type"] == "crossroad") {
                 center = layer.getBounds().getCenter();
             }
@@ -158,7 +167,6 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
     // create a layergroup
     window.layergroup = L.featureGroup(window.crossroad_layers).addTo(window.map);
     
-    console.log(window.crossroad_layers);
     // set the zoom adjusted on this layergroup
     window.map.fitBounds(window.layergroup.getBounds());
     
@@ -180,7 +188,7 @@ Settings.render_crossroad = function(current_crossroad, divID, crossroadLinksID)
 }
 
 Settings.render_crossroads = function(data, divID) {
-    Settings.init_map(divID);
+    Settings.init_map(divID, true);
 
     window.crossroads_layers = [];
 
@@ -191,12 +199,12 @@ Settings.render_crossroads = function(data, divID) {
         else if (data[eid]["evaluated"])
             color = "#00FF00";
         else
-            color = "#CCCCCC";
+            color = "#FFFFFF";
 
         for(var eid in crossroad) {
             element = crossroad[eid];
 
-            if (element["type"] == "crossroad") {
+            if (element["type"] == "crossroad" || element["type"] == "branch") {
                 // build latlng
                 latlng = [];
                 if (element["edges_by_nodes"].length == 0) {
@@ -212,12 +220,15 @@ Settings.render_crossroads = function(data, divID) {
                                     [element["coordinates"][edge[1]]["y"], element["coordinates"][edge[1]]["x"]]]);
                     }
                 }
+
                 // set color
-                options = {color: color};
+                if (element["type"] == "crossroad")
+                    options = {color: color, weight: '4'};
+                else
+                    options = {color: "#FFFFFF", opacity: '0.5'};
                 // create crossroad layer
                 layer = L.polyline(latlng, options);
                 window.crossroads_layers.push(layer);
-                break;
             }
         }
     }
@@ -225,7 +236,11 @@ Settings.render_crossroads = function(data, divID) {
     // create a layergroup
     window.layergroup = L.featureGroup(window.crossroads_layers).addTo(window.map);
 
+    console.log(window.layergroup.getBounds());
     // set the zoom adjusted on this layergroup
     window.map.fitBounds(window.layergroup.getBounds());
     
+    // hack to fix 0px size bug
+    setTimeout(function(){ window.map.invalidateSize(); window.map.fitBounds(window.layergroup.getBounds());}, 400);
+
 }
