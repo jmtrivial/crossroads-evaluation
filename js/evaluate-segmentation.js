@@ -235,6 +235,7 @@ Settings.render_crossroads = function(data, divID) {
 
     for(eid in data) {
         crossroad = data[eid]["crossroad"];
+
         if (data[eid]["incorrect"])
             color = "#FF0000";
         else if (data[eid]["evaluated"])
@@ -242,8 +243,8 @@ Settings.render_crossroads = function(data, divID) {
         else
             color = "#FFFFFF";
 
-        for(var eid in crossroad) {
-            element = crossroad[eid];
+        for(var nid in crossroad) {
+            element = crossroad[nid];
 
             if (element["type"] == "crossroad" || element["type"] == "branch") {
                 // build latlng
@@ -264,12 +265,16 @@ Settings.render_crossroads = function(data, divID) {
 
                 // set color
                 if (element["type"] == "crossroad")
-                    options = {color: color, weight: '4'};
+                    options = {color: color, weight: '4', crossroadID: data[eid]["id"]};
                 else
-                    options = {color: "#FFFFFF", opacity: '0.5'};
+                    options = {color: "#FFFFFF", opacity: '0.5', crossroadID: data[eid]["id"]};
                 // create crossroad layer
                 layer = L.polyline(latlng, options);
+                layer.on('click', function(e) { select_on_table(e.target.options.crossroadID) });                
                 window.crossroads_layers.push(layer);
+                if (element["type"] == "crossroad") {
+                    registerBounds(data[eid]["id"], layer.getBounds());
+                }
             }
         }
     }

@@ -61,6 +61,7 @@
             }
             function build_data_from_crossroads() {
                 var result = [];
+                window.lineFromId = {};
 
                 i = 0;
 
@@ -88,6 +89,7 @@
                         for(var x in window.cf_json) {
                             cr_line[x] = fields[x];
                         }
+                        window.lineFromId[cr_line["id"]] = result.length;
                         result.push(cr_line);
                     }
                     i += 1;
@@ -98,8 +100,8 @@
 
             function update_crossroads_display() {
                 data = build_data_from_crossroads();
-                table = $('#table')
-                table.bootstrapTable('destroy').bootstrapTable({data: data});
+                table = $('#table');
+                table.bootstrapTable('destroy').bootstrapTable({data: data, onCheck: function(row, element) {select_on_map(row.id);}});
                 Settings.render_crossroads(data, "crossroads-rendering");
                 if (window.mode == "all")
                     $("#crossroads_title").text("All crossroads");
@@ -120,7 +122,7 @@
             function build_browser_interface() {
                 // Create columns
                 html = '<th scope="row" data-field="id">ID</th>';
-                //html += '<th data-field="state" data-checkbox="true"></th>';
+                html += '<th data-field="state" data-checkbox="true"></th>';
                 window.q_json = JSON.parse(Settings.question_list);
 
                 // Columns from questions
@@ -147,6 +149,21 @@
                 $("#intro").html(Settings.intro_evaluation_browser_page);
             }
 
+            function select_on_table(cid) {
+                $('#table').bootstrapTable('uncheckAll');
+                strCid = "" + cid;
+                $('#table').bootstrapTable('checkBy', {field: 'id', values: [strCid], onlyCurrentPage: false});
+                $('#table').bootstrapTable('scrollTo', {value: window.lineFromId[strCid], unit: 'rows'});
+            }
+
+            function select_on_map(cid) {
+                if (cid in window.crossroads_bounds)
+                    window.map.fitBounds(window.crossroads_bounds[cid]);
+            }
+
+            function registerBounds(cid, bounds) {
+                window.crossroads_bounds[cid] = bounds;
+            }
 
             $(document).ready(function () {
             
@@ -170,6 +187,8 @@
                 
                 }
                 script.onload = () => { 
+
+                    window.crossroads_bounds = {};
 
                     set_title();
                     set_intro();
@@ -281,11 +300,11 @@
                 <div>
                     <table class="table-dark"
                         id="table"
+                        data-show-toggle="true"
                         data-filter="true"
                         data-height="460"
                         data-single-select="true"
-                        data-click-to-select="true"
-                        data-pagination="true">
+                        data-click-to-select="true">
                         <thead>
                             <tr id="table_header">
                              </tr>
