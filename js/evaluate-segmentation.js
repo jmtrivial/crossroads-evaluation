@@ -277,7 +277,6 @@ Settings.render_crossroads = function(data, divID) {
     // create a layergroup
     window.layergroup = L.featureGroup(window.crossroads_layers).addTo(window.map);
 
-    console.log(window.layergroup.getBounds());
     // set the zoom adjusted on this layergroup
     window.map.fitBounds(window.layergroup.getBounds());
     
