@@ -281,7 +281,7 @@ Settings.render_crossroads = function(data, divID) {
                 layer.bindTooltip("Intersection #" + data[eid]["id"] + " " + msg);
                 window.crossroads_layers.push(layer);
                 if (element["type"] == "crossroad") {
-                    registerBounds(data[eid]["id"], layer.getBounds());
+                    registerBounds(data[eid]["id"], layer.getBounds().pad(1));
                 }
             }
         }
