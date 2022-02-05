@@ -10,7 +10,7 @@ Settings.question_list = '{ \
         "comments": {"question": "Comments", "type": "text", "default": "" } \
     }';
 
-Settings.computed_fields = '{ "complex_node_number": "#complex nodes", "length": "Length" }';
+Settings.computed_fields = '{ "complex_node_number": "#complex nodes", "length": "Length (m)" }';
 
 Settings.title_evaluation_page = "Crossroad segmentation quality evaluation";
 Settings.intro_evaluation_page = 'By answering the following questions, you will evaluate the quality of a junction detection and segmentation algorithm in <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, and participate in the <a href="https://activmap.limos.fr/">ANR ACTIVmap project</a>. This tool is part of the <a href="index.html">main evaluation toolkit</a>.';
@@ -50,14 +50,56 @@ Settings.Colors.list = function(nb) {
 
 };
 
+Settings.distance = function(c1, c2) {
+    if (!window.mmapcalc)
+        window.mmapcalc = new L.Map(document.createElement("p"));
+    return window.mmapcalc.distance([c1["y"], c1["x"]], [c2["y"], c2["x"]]);
+}
+
 Settings.compute_complex_node_number = function(crossroad) {
-    // TODO
-    return 1;
+    var nb_nodes = {};
+    for (var idc in crossroad) {
+        if (crossroad[idc]["type"] != "evaluation") {
+            for (var e in crossroad[idc]["edges_by_nodes"]) {
+                for(var n in crossroad[idc]["edges_by_nodes"][e]) {
+                    var nid = crossroad[idc]["edges_by_nodes"][e][n];
+                    if (!(nid in nb_nodes)) 
+                        nb_nodes[nid] = 1;
+                    else
+                        nb_nodes[nid] += 1;
+                }
+            }
+        }
+            
+    }
+
+    var nb = 0;
+    for(var key in nb_nodes) {
+        if (nb_nodes[key] > 2)
+            nb += 1;
+    }
+
+    return nb;
 }
 
 Settings.compute_crossroad_length = function(crossroad) {
-    // TODO
-    return 0.0;
+    var result = 0.0;
+
+    for (var idc in crossroad) {
+        if (crossroad[idc]["type"] == "crossroad") {
+            for (var e in crossroad[idc]["edges_by_nodes"]) {
+                n1 = crossroad[idc]["edges_by_nodes"][e][0];
+                n2 = crossroad[idc]["edges_by_nodes"][e][1];
+                n1coords = crossroad[idc]["coordinates"][n1]; 
+                n2coords = crossroad[idc]["coordinates"][n2];
+                d = Settings.distance(n1coords, n2coords);
+                result += d;
+                console.log(d);
+            }
+        }
+    }
+
+    return result;
 }
 
 
