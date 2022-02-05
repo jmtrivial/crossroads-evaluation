@@ -236,12 +236,19 @@ Settings.render_crossroads = function(data, divID) {
     for(eid in data) {
         crossroad = data[eid]["crossroad"];
 
-        if (data[eid]["incorrect"])
+        msg = "";
+        if (data[eid]["incorrect"]) {
             color = "#FF0000";
-        else if (data[eid]["evaluated"])
+            msg = "(incorrect)";
+        }
+        else if (data[eid]["evaluated"]) {
             color = "#00FF00";
-        else
+            msg = "(correct)";
+        }
+        else {
             color = "#FFFFFF";
+            msg = "(N/A)";
+        }
 
         for(var nid in crossroad) {
             element = crossroad[nid];
@@ -271,6 +278,7 @@ Settings.render_crossroads = function(data, divID) {
                 // create crossroad layer
                 layer = L.polyline(latlng, options);
                 layer.on('click', function(e) { select_on_table(e.target.options.crossroadID) });                
+                layer.bindTooltip("Intersection #" + data[eid]["id"] + " " + msg);
                 window.crossroads_layers.push(layer);
                 if (element["type"] == "crossroad") {
                     registerBounds(data[eid]["id"], layer.getBounds());
