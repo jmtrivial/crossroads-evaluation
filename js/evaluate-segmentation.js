@@ -94,7 +94,6 @@ Settings.compute_crossroad_length = function(crossroad) {
                 n2coords = crossroad[idc]["coordinates"][n2];
                 d = Settings.distance(n1coords, n2coords);
                 result += d;
-                console.log(d);
             }
         }
     }
