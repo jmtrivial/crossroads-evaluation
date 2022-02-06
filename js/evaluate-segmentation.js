@@ -2,6 +2,7 @@
 Settings = {};
 
 Settings.question_list = '{ \
+        "exists": { "question": "Existing crossroad", "type": "multiple_choice", "values": ["yes", "no"], "default": "yes" }, \
         "scale": {"question": "Crossroad scale", "type": "multiple_choice", "values": ["correct", "too large", "too small"], "default": "correct" }, \
         "nb_branches": { "question": "Number of branches", "type": "multiple_choice", "values": ["correct", "too few", "too much"], "default": "correct" }, \
         "branches": { "question": "Branches configuration", "type": "multiple_choice", "values": ["correct", "two or more branches are merged", "one or more branch is split", "merged and split branches"], "default": "correct" }, \
