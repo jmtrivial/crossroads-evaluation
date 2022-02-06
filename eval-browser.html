@@ -104,13 +104,13 @@
                 table.bootstrapTable('destroy').bootstrapTable({data: data, onCheck: function(row, element) {select_on_map(row.id);}});
                 Settings.render_crossroads(data, "crossroads-rendering");
                 if (window.mode == "all")
-                    $("#crossroads_title").text("All crossroads");
+                    $("#crossroads_title span.title").text("All crossroads");
                 else if (window.mode == "evaluated")
-                    $("#crossroads_title").text("Evaluated crossroads");
+                    $("#crossroads_title span.title").text("Evaluated crossroads");
                 else if (window.mode == "incorrect")
-                    $("#crossroads_title").text("Incorrect crossroads");
+                    $("#crossroads_title span.title").text("Incorrect crossroads");
                 else if (window.mode == "correct")
-                    $("#crossroads_title").text("Correct crossroads");
+                    $("#crossroads_title span.title").text("Correct crossroads");
             }
         
             function display_browser_interface() {
@@ -247,6 +247,15 @@
                         window.mode = "correct";
                         update_crossroads_display();
                     });
+
+                    $("#osm-external").click(function(evt) {
+                        var center = window.map.getCenter();
+                        var zoom = window.map.getZoom();
+                        console.log(center, zoom);
+                        var osm_url = 'https://www.openstreetmap.org/?zoom=' + zoom + '&mlat=' + center.lat + '&mlon=' + center.lng;
+                        window.open(osm_url, '_blank');
+
+                    });
                 }
             });
 
@@ -293,7 +302,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title" id="crossroads_title"></h2>
+                        <h2 class="card-title" id="crossroads_title"><span class="title"></span> <button id="osm-external" class="button badge bg-secondary">osm</button></h2>
                         <div id="crossroads-rendering"></div>
                     </div>
                 </div>
